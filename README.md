@@ -1,0 +1,2 @@
+# toilet_capsule_toy_machine
+トイレのガチャガチャwebアプリ
