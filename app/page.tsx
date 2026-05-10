@@ -12,9 +12,7 @@ export default function Home() {
 
   // ガチャ袋
   const initialPool = useMemo(() => {
-    return GACHA_PRIZES.flatMap((prize) =>
-      Array(prize.count).fill(prize)
-    );
+    return GACHA_PRIZES.flatMap((prize) => Array(prize.count).fill(prize));
   }, []);
 
   const [pool, setPool] = useState<Prize[]>(initialPool);
@@ -55,20 +53,14 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-sky-100 overflow-hidden">
-
       {/* 残数表示 */}
       <div className="absolute right-10 top-1/2 -translate-y-1/2">
         <div className="w-56 rounded-xl bg-white/80 p-4 shadow">
-
-          <h2 className="mb-3 text-lg font-bold text-zinc-800">
-            残り個数
-          </h2>
+          <h2 className="mb-3 text-lg font-bold text-zinc-800">残り個数</h2>
 
           <div className="space-y-2">
             {GACHA_PRIZES.map((prize) => {
-              const remain = pool.filter(
-                (p) => p.id === prize.id
-              ).length;
+              const remain = pool.filter((p) => p.id === prize.id).length;
 
               return (
                 <div
@@ -88,9 +80,7 @@ export default function Home() {
           </div>
 
           <div className="mt-4 border-t pt-3 flex items-center justify-between text-sm">
-            <span className="text-zinc-600">
-              合計
-            </span>
+            <span className="text-zinc-600">合計</span>
 
             <span className="font-mono font-bold text-zinc-800">
               {pool.length} / {initialPool.length}
@@ -100,31 +90,26 @@ export default function Home() {
       </div>
 
       <div className="relative flex flex-col items-center">
-
         {/* タイトル */}
-        <h1 className="mb-10 text-4xl font-bold text-zinc-800">
-          トイレガチャ
-        </h1>
+        <h1 className="mb-10 text-4xl font-bold text-zinc-800">トイレガチャ</h1>
 
         {/* トイレ */}
         <div className="relative">
-
           {/* タンク */}
           <div className="mx-auto h-32 w-56 rounded-2xl border-4 border-zinc-400 bg-white relative">
-
             {/* レバー */}
             <button
               onClick={startGacha}
-              className={`absolute -right-10 top-10 h-5 w-16 rounded-full transition-all ${flushing
-                ? "rotate-45 bg-zinc-500"
-                : "bg-zinc-700 hover:bg-zinc-600"
-                }`}
+              className={`absolute -right-10 top-10 h-5 w-16 rounded-full transition-all ${
+                flushing
+                  ? "rotate-45 bg-zinc-500"
+                  : "bg-zinc-700 hover:bg-zinc-600"
+              }`}
             />
           </div>
 
           {/* 便座 */}
           <div className="relative mx-auto -mt-2 flex h-72 w-80 items-center justify-center rounded-b-[120px] rounded-t-[80px] border-[10px] border-zinc-300 bg-white overflow-hidden">
-
             {flushing && (
               <div className="absolute inset-0 animate-pulse bg-cyan-300/70" />
             )}
@@ -138,12 +123,8 @@ export default function Home() {
 
           {/* うんち */}
           {showPoop && result && (
-            <div
-              className="absolute left-1/2 top-10 flex h-40 w-40 -translate-x-1/2 -translate-y-12 scale-110 flex-col items-center justify-center transition-all duration-700"
-            >
-              <div className="mb-3 text-6xl">
-                💩
-              </div>
+            <div className="absolute left-1/2 top-10 flex h-40 w-40 -translate-x-1/2 -translate-y-12 scale-110 flex-col items-center justify-center transition-all duration-700">
+              <div className="mb-3 text-6xl">💩</div>
 
               <div
                 className={`rounded-2xl px-8 py-4 text-4xl font-extrabold shadow-2xl ${result.bgColor} ${result.textColor}`}
@@ -163,7 +144,5 @@ export default function Home() {
 }
 
 function wait(ms: number) {
-  return new Promise((resolve) =>
-    setTimeout(resolve, ms)
-  );
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
