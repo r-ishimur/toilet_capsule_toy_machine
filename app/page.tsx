@@ -1,65 +1,169 @@
-import Image from "next/image";
+"use client";
+
+import { useMemo, useState } from "react";
+import { GACHA_PRIZES } from "./config/config";
+import { Prize } from "./types/prize";
 
 export default function Home() {
+  const [flushing, setFlushing] = useState(false);
+  const [showPoop, setShowPoop] = useState(false);
+
+  const [result, setResult] = useState<Prize | null>(null);
+
+  // ガチャ袋
+  const initialPool = useMemo(() => {
+    return GACHA_PRIZES.flatMap((prize) =>
+      Array(prize.count).fill(prize)
+    );
+  }, []);
+
+  const [pool, setPool] = useState<Prize[]>(initialPool);
+
+  const startGacha = async () => {
+    if (flushing) return;
+
+    if (pool.length === 0) {
+      alert("ガチャが空です！");
+      return;
+    }
+
+    // 初期化
+    setFlushing(true);
+    setShowPoop(false);
+    setResult(null);
+
+    // ランダム抽選（非復元）
+    const index = Math.floor(Math.random() * pool.length);
+
+    const selected = pool[index];
+
+    // ガチャ演出
+    await wait(1800);
+
+    setShowPoop(true);
+
+    setFlushing(false);
+
+    // 抽選したものを除外
+    const nextPool = [...pool];
+    nextPool.splice(index, 1);
+
+    setPool(nextPool);
+
+    setResult(selected);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="relative flex min-h-screen items-center justify-center bg-sky-100 overflow-hidden">
+
+      {/* 残数表示 */}
+      <div className="absolute right-10 top-1/2 -translate-y-1/2">
+        <div className="w-56 rounded-xl bg-white/80 p-4 shadow">
+
+          <h2 className="mb-3 text-lg font-bold text-zinc-800">
+            残り個数
+          </h2>
+
+          <div className="space-y-2">
+            {GACHA_PRIZES.map((prize) => {
+              const remain = pool.filter(
+                (p) => p.id === prize.id
+              ).length;
+
+              return (
+                <div
+                  key={prize.id}
+                  className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2"
+                >
+                  <span className="font-mono font-bold text-zinc-800">
+                    {prize.label}
+                  </span>
+
+                  <span className="font-mono font-bold text-zinc-800">
+                    {remain} / {prize.count}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 border-t pt-3 flex items-center justify-between text-sm">
+            <span className="text-zinc-600">
+              合計
+            </span>
+
+            <span className="font-mono font-bold text-zinc-800">
+              {pool.length} / {initialPool.length}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </div>
+
+      <div className="relative flex flex-col items-center">
+
+        {/* タイトル */}
+        <h1 className="mb-10 text-4xl font-bold text-zinc-800">
+          トイレガチャ
+        </h1>
+
+        {/* トイレ */}
+        <div className="relative">
+
+          {/* タンク */}
+          <div className="mx-auto h-32 w-56 rounded-2xl border-4 border-zinc-400 bg-white relative">
+
+            {/* レバー */}
+            <button
+              onClick={startGacha}
+              className={`absolute -right-10 top-10 h-5 w-16 rounded-full transition-all ${flushing
+                ? "rotate-45 bg-zinc-500"
+                : "bg-zinc-700 hover:bg-zinc-600"
+                }`}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+
+          {/* 便座 */}
+          <div className="relative mx-auto -mt-2 flex h-72 w-80 items-center justify-center rounded-b-[120px] rounded-t-[80px] border-[10px] border-zinc-300 bg-white overflow-hidden">
+
+            {flushing && (
+              <div className="absolute inset-0 animate-pulse bg-cyan-300/70" />
+            )}
+
+            {flushing && (
+              <div className="absolute h-40 w-40 animate-spin rounded-full border-[12px] border-dashed border-cyan-600 opacity-70" />
+            )}
+
+            <div className="absolute h-36 w-36 rounded-full bg-zinc-900" />
+          </div>
+
+          {/* うんち */}
+          {showPoop && result && (
+            <div
+              className="absolute left-1/2 top-10 flex h-40 w-40 -translate-x-1/2 -translate-y-12 scale-110 flex-col items-center justify-center transition-all duration-700"
+            >
+              <div className="mb-3 text-6xl">
+                💩
+              </div>
+
+              <div
+                className={`rounded-2xl px-8 py-4 text-4xl font-extrabold shadow-2xl ${result.bgColor} ${result.textColor}`}
+              >
+                {result.label}
+              </div>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+
+        <p className="mt-12 text-zinc-600">
+          レバーをクリックしてガチャを回そう！
+        </p>
+      </div>
+    </main>
+  );
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) =>
+    setTimeout(resolve, ms)
   );
 }
